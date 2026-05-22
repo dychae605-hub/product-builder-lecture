@@ -616,6 +616,9 @@ async function saveSelectedFiles() {
     if (failCount === 0) {
       progressLabel.textContent = `🎉 선택된 ${successCount}개의 파일이 성공적으로 로컬 폴더에 저장되었습니다!`;
       progressBar.style.background = 'var(--success-color)';
+      
+      // Clear file explorer and reset cache upon successful save
+      clearFileList();
     } else {
       progressLabel.textContent = `⚠️ 저장 완료 (일부 실패): 성공 ${successCount}건, 실패 ${failCount}건 (실패 파일: ${failedNames.join(', ')}).`;
       progressBar.style.background = 'var(--warning-color, #f59e0b)';
@@ -632,6 +635,23 @@ async function saveSelectedFiles() {
     dropzone.style.pointerEvents = 'auto';
     updateControlsState();
   }
+}
+
+function clearFileList() {
+  fileList.innerHTML = `
+    <tr id="empty-row">
+      <td colspan="5" class="empty-state">
+        <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V4a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+        </svg>
+        <p>PDF 급여명세서를 로드한 뒤 [분할 시작]을 누르면 이곳에 파일이 실시간으로 생성됩니다.</p>
+      </td>
+    </tr>
+  `;
+  splitFiles = [];
+  splitCountLabel.textContent = '0';
+  chkSelectAll.checked = false;
+  updateControlsState();
 }
 
 /* ==========================================================================
