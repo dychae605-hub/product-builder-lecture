@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>급여명세서 PDF 파일 암호화 시스템 - Antigravity</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Google Fonts Outfit & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- PDF-LIB & PDFJS CDN (Common Utilities) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+</head>
+<body>
+  <div class="background-decorations">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- 상단 네비게이션 및 헤더 -->
+    <header class="app-header">
+      <div class="nav-back-area">
+        <a href="../index.html" class="btn-back">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          <span>대시보드로 돌아가기</span>
+        </a>
+      </div>
+      <div class="logo-area">
+        <svg class="header-logo-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+        <h1>급여명세서 PDF 파일 암호화</h1>
+      </div>
+      <p class="subtitle">로컬 폴더의 PDF 파일에 안전한 비밀번호를 개별 설정하고 1:1 다이렉트로 안전하게 암호화합니다.</p>
+    </header>
+
+    <main class="app-dashboard">
+      <!-- 1열: 제어 및 설정 영역 -->
+      <section class="dashboard-controls-panel">
+        <!-- 폴더 선택 카드 -->
+        <div class="dashboard-card upload-card">
+          <h2 class="card-title">대상 로컬 폴더 선택</h2>
+          <div class="dropzone" id="dir-picker-zone">
+            <div class="dropzone-content">
+              <svg class="upload-icon animate-pulse" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+              </svg>
+              <p class="dropzone-text">암호화할 PDF 파일들이 들어있는 로컬 폴더를 연동해 주세요.</p>
+              <button type="button" class="btn btn-secondary" id="btn-select-dir">📁 로컬 폴더 찾기</button>
+              <p class="dropzone-info">보안상 원격 서버로 파일을 전송하지 않습니다.</p>
+            </div>
+            <!-- 로드된 폴더 정보 영역 -->
+            <div class="loaded-file-info" id="dir-info-area" style="display: none;">
+              <div class="file-meta">
+                <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5M5 19v-2a2 2 0 002-2h2a2 2 0 002-2V5" />
+                </svg>
+                <div class="file-details">
+                  <span class="file-name" id="selected-dir-name">-</span>
+                  <span class="file-size" id="selected-dir-path">📁 전체 절대 경로 조회 대기 중</span>
+                </div>
+              </div>
+              <div class="file-badge">
+                <span id="selected-pdf-count">0개 파일</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 일괄 패스워드 설정 카드 -->
+        <div class="dashboard-card options-card">
+          <h2 class="card-title">비밀번호 일괄 적용 (업무 편의 기능)</h2>
+          <div class="form-group">
+            <label for="bulk-password-input">일괄 설정 비밀번호</label>
+            <div class="input-helper">선택된 모든 PDF 파일에 일관되게 주입할 비밀번호를 입력합니다.</div>
+            <div class="password-input-wrapper">
+              <input type="password" id="bulk-password-input" placeholder="일괄 비밀번호 입력">
+              <button type="button" class="btn-toggle-pw" id="btn-toggle-bulk-pw" title="비밀번호 보기/숨기기">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="icon-eye">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="actions-wrapper">
+            <button type="button" class="btn btn-secondary w-full" id="btn-apply-all-pw" disabled>
+              <span>🔑 선택 목록에 일괄 적용</span>
+            </button>
+            <button type="button" class="btn btn-accent w-full" id="btn-start-encrypt" disabled>
+              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span>선택 파일 암호화 시작</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2열: 진행 상태 및 파일 목록 -->
+      <section class="dashboard-results-panel">
+        <!-- 진행 상태 알림 카드 -->
+        <div class="dashboard-card progress-card" id="progress-card" style="display: none;">
+          <h2 class="card-title">암호화 처리 상태</h2>
+          <div class="progress-details">
+            <span class="progress-label" id="progress-label">대기 중...</span>
+            <span class="progress-percent" id="progress-percent-label">0%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- 탐색기 카드 -->
+        <div class="dashboard-card explorer-card">
+          <div class="explorer-header">
+            <h2 class="card-title">폴더 내 PDF 파일 목록</h2>
+            <div class="explorer-stats">
+              검색된 파일: <strong id="pdf-count">0</strong>개
+            </div>
+          </div>
+          <div class="explorer-table-container">
+            <table class="explorer-table">
+              <thead>
+                <tr>
+                  <th scope="col" class="col-checkbox" style="width: 46px; text-align: center;">
+                    <label class="checkbox-container select-all-container" style="padding: 0; display: inline-flex; justify-content: center; align-items: center; width: 18px; height: 18px; margin: 0 auto;">
+                      <input type="checkbox" id="chk-select-all" checked>
+                    </label>
+                  </th>
+                  <th scope="col" class="col-name" style="width: 35%;">파일명</th>
+                  <th scope="col" class="col-size" style="width: 15%;">크기</th>
+                  <th scope="col" class="col-password" style="width: 25%;">암호 텍스트 입력</th>
+                  <th scope="col" class="col-status" style="width: 25%;">암호화 상태 메세지</th>
+                </tr>
+              </thead>
+              <tbody id="pdf-list">
+                <tr id="empty-row">
+                  <td colspan="5" class="empty-state">
+                    <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <p>암호화할 PDF 파일이 포함된 로컬 폴더를 상단 버튼을 클릭하여 스캔해 주세요.</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>&copy; 2026 Antigravity. Pure Client-Side Strong PDF Encryptor. Personal Information Compliant.</p>
+    </footer>
+  </div>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>

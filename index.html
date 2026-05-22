@@ -52,7 +52,7 @@
       </a>
 
       <!-- 2. PDF 파일 암호화 -->
-      <div class="dashboard-card-link cursor-pointer" id="link-encryption">
+      <a href="./pdf-encryption/index.html" class="dashboard-card-link" id="link-encryption">
         <article class="dashboard-card card-encryption">
           <div class="card-glow"></div>
           <div class="card-icon-wrapper">
@@ -63,16 +63,16 @@
           <h2 class="card-title">PDF 파일 암호화</h2>
           <p class="card-description">개인정보 보안을 극대화하기 위해 분할된 급여명세서 PDF 파일에 안전한 비밀번호 설정 및 강력한 암호화를 적용합니다.</p>
           <div class="card-status">
-            <span class="status-badge status-pending">업데이트 예정</span>
+            <span class="status-badge status-active">즉시 사용 가능</span>
           </div>
           <div class="card-arrow">
-            <span>자세히 보기</span>
+            <span>바로가기</span>
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
             </svg>
           </div>
         </article>
-      </div>
+      </a>
 
       <!-- 3. 급여명세서 메일 발송 -->
       <div class="dashboard-card-link cursor-pointer" id="link-mailing">
@@ -178,7 +178,6 @@
       }, 300);
     }
 
-    linkEncryption.addEventListener('click', () => showModal('encryption'));
     linkMailing.addEventListener('click', () => showModal('mailing'));
     
     btnModalClose.addEventListener('click', closeModal);
