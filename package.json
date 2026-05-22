@@ -1,0 +1,11 @@
+{
+  "name": "payroll-pdf-splitter",
+  "version": "1.0.0",
+  "description": "Pure frontend PDF payroll statement splitter",
+  "scripts": {
+    "dev": "npx -y live-server"
+  },
+  "keywords": [],
+  "author": "Antigravity",
+  "license": "MIT"
+}
