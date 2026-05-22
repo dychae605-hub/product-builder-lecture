@@ -3,16 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>급여명세서 PDF 실시간 분할기 (Pure Frontend)</title>
-  <link rel="stylesheet" href="style.css">
+  <title>급여 관리 종합 대시보드 - Antigravity</title>
+  <link rel="stylesheet" href="main.css">
   <!-- Google Fonts Outfit & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <!-- PDF-LIB & PDFJS & JSZip CDN -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
   <div class="background-decorations">
@@ -26,136 +22,206 @@
         <svg class="header-logo-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
         </svg>
-        <h1>개인별 급여명세서 생성</h1>
+        <h1>급여 관리 종합 대시보드</h1>
       </div>
-      <p class="subtitle">서버 전송 없이 안전하게 브라우저에서 분할하는 대용량 급여명세서 처리 도구</p>
+      <p class="subtitle">개인별 급여명세서 분할부터 암호화, 이메일 발송까지 안전한 원스톱 관리 시스템</p>
     </header>
 
-    <main class="app-dashboard">
-      <!-- 1열: 제어 및 설정 영역 -->
-      <section class="dashboard-controls-panel">
-        <!-- 업로드 카드 -->
-        <div class="dashboard-card upload-card">
-          <h2 class="card-title">급여명세서 PDF 업로드</h2>
-          <div class="dropzone" id="dropzone">
-            <input type="file" id="file-input" accept="application/pdf" style="display: none;">
-            <div class="dropzone-content">
-              <svg class="upload-icon animate-bounce" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-              <p class="dropzone-text">대용량 급여명세서 PDF 파일을 이곳에 끌어다 놓거나</p>
-              <button type="button" class="btn btn-secondary" id="btn-select-file">파일 선택하기</button>
-              <p class="dropzone-info">서버로 업로드되지 않으므로 안심하고 사용하세요.</p>
-            </div>
-            <!-- 로드된 파일 정보 표시 영역 -->
-            <div class="loaded-file-info" id="file-info-area" style="display: none;">
-              <div class="file-meta">
-                <svg class="file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                  <path fill-rule="evenodd" d="M5.625 1.5H9a3.75 3.75 0 013.75 3.75v1.875c0 1.036.84 1.875 1.875 1.875H16.5a3.75 3.75 0 013.75 3.75v7.875c0 1.035-.84 1.875-1.875 1.875H5.625a1.875 1.875 0 01-1.875-1.875V3.375c0-1.036.84-1.875 1.875-1.875zm5.845 17.03a.75.75 0 001.06 0l3-3a.75.75 0 10-1.06-1.06l-1.72 1.72V12a.75.75 0 00-1.5 0v4.19l-1.72-1.72a.75.75 0 00-1.06 1.06l3 3z" clip-rule="evenodd" />
-                  <path d="M14.25 5.25a5.23 5.23 0 00-1.279-3.434 9.768 9.768 0 016.963 6.963A5.23 5.23 0 0016.5 7.5h-2.25z" />
-                </svg>
-                <div class="file-details">
-                  <span class="file-name" id="selected-file-name">-</span>
-                  <span class="file-size" id="selected-file-size">-</span>
-                </div>
-              </div>
-              <div class="file-badge">
-                <span id="selected-file-pages">0 페이지</span>
-              </div>
-            </div>
+    <main class="dashboard-grid">
+      <!-- 1. 급여명세서 파일 분할 -->
+      <a href="./pdf-splitter/index.html" class="dashboard-card-link" id="link-splitter">
+        <article class="dashboard-card card-splitter">
+          <div class="card-glow"></div>
+          <div class="card-icon-wrapper">
+            <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.121 14.121L19 19m-7-7h7m-7-7h7M6 10a4 4 0 11-8 0 4 4 0 018 0zM6 18a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
           </div>
-        </div>
+          <h2 class="card-title">급여명세서 파일 분할</h2>
+          <p class="card-description">대용량 단일 급여명세서 PDF 파일을 직원별로 인식하여 안전하게 자동 분할하고 로컬에 격리 저장합니다.</p>
+          <div class="card-status">
+            <span class="status-badge status-active">즉시 사용 가능</span>
+          </div>
+          <div class="card-arrow">
+            <span>바로가기</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </div>
+        </article>
+      </a>
 
-        <!-- 옵션 및 설정 카드 -->
-        <div class="dashboard-card options-card">
-          <h2 class="card-title">변환 및 예외 설정</h2>
-          <div class="form-group">
-            <label for="fallback-input">기본 파일명 접두사 (Fallback)</label>
-            <div class="input-helper">텍스트 추출에 실패한 페이지를 저장할 이름 규칙을 지정합니다.</div>
-            <input type="text" id="fallback-input" placeholder="예: 202605_소급명세서" value="미지정_급여명세서">
+      <!-- 2. PDF 파일 암호화 -->
+      <div class="dashboard-card-link cursor-pointer" id="link-encryption">
+        <article class="dashboard-card card-encryption">
+          <div class="card-glow"></div>
+          <div class="card-icon-wrapper">
+            <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
           </div>
-          <div class="actions-wrapper">
-            <button type="button" class="btn btn-primary" id="btn-split" disabled>
-              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span>실시간 분할 시작</span>
-            </button>
-            <button type="button" class="btn btn-accent" id="btn-save-selected" disabled>
-              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-              </svg>
-              <span>선택된 파일 로컬 저장</span>
-            </button>
-            <button type="button" class="btn btn-secondary" id="btn-download-all" disabled>
-              <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              <span>선택 파일 압축(ZIP) 다운로드</span>
-            </button>
+          <h2 class="card-title">PDF 파일 암호화</h2>
+          <p class="card-description">개인정보 보안을 극대화하기 위해 분할된 급여명세서 PDF 파일에 안전한 비밀번호 설정 및 강력한 암호화를 적용합니다.</p>
+          <div class="card-status">
+            <span class="status-badge status-pending">업데이트 예정</span>
           </div>
-        </div>
-      </section>
+          <div class="card-arrow">
+            <span>자세히 보기</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </div>
+        </article>
+      </div>
 
-      <!-- 2열: 진행 상태 및 탐색기 영역 -->
-      <section class="dashboard-results-panel">
-        <!-- 진행률 알림 카드 -->
-        <div class="dashboard-card progress-card" id="progress-card" style="display: none;">
-          <h2 class="card-title" id="progress-title">분할 처리 상태</h2>
-          <div class="progress-details">
-            <span class="progress-label" id="progress-label">준비 완료</span>
-            <span class="progress-percent" id="progress-percent-label">0%</span>
+      <!-- 3. 급여명세서 메일 발송 -->
+      <div class="dashboard-card-link cursor-pointer" id="link-mailing">
+        <article class="dashboard-card card-mailing">
+          <div class="card-glow"></div>
+          <div class="card-icon-wrapper">
+            <svg class="card-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l8-4.666a2 2 0 012.22 0l8 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-2.25-1.5a2 2 0 00-2.22 0l-2.25 1.5" />
+            </svg>
           </div>
-          <div class="progress-bar-container">
-            <div class="progress-bar" id="progress-bar" style="width: 0%;"></div>
+          <h2 class="card-title">급여명세서 메일 발송</h2>
+          <p class="card-description">분할 및 암호화가 완료된 급여명세서를 매칭된 직원의 메일 주소로 안전하게 대량 자동 전송합니다.</p>
+          <div class="card-status">
+            <span class="status-badge status-pending">업데이트 예정</span>
           </div>
-        </div>
-
-        <!-- 탐색기 카드 -->
-        <div class="dashboard-card explorer-card">
-          <div class="explorer-header">
-            <h2 class="card-title">분할 완료된 파일 목록 (실시간 탐색기)</h2>
-            <div class="explorer-stats" id="explorer-stats">
-              분할된 파일: <strong id="split-count">0</strong>개
-            </div>
+          <div class="card-arrow">
+            <span>자세히 보기</span>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
           </div>
-          <div class="explorer-table-container">
-            <table class="explorer-table">
-              <thead>
-                <tr>
-                  <th scope="col" class="col-checkbox" style="width: 46px; text-align: center;">
-                    <label class="checkbox-container select-all-container" style="padding: 0; display: inline-flex; justify-content: center; align-items: center; width: 18px; height: 18px; margin: 0 auto;">
-                      <input type="checkbox" id="chk-select-all" checked>
-                    </label>
-                  </th>
-                  <th scope="col" class="col-name">파일명</th>
-                  <th scope="col" class="col-type">유형</th>
-                  <th scope="col" class="col-size">크기</th>
-                  <th scope="col" class="col-action">작업</th>
-                </tr>
-              </thead>
-              <tbody id="file-list">
-                <tr id="empty-row">
-                  <td colspan="5" class="empty-state">
-                    <svg class="empty-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m-9 1V4a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-                    </svg>
-                    <p>PDF 급여명세서를 로드한 뒤 [분할 시작]을 누르면 이곳에 파일이 실시간으로 생성됩니다.</p>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+        </article>
+      </div>
     </main>
 
     <footer class="app-footer">
-      <p>&copy; 2026 Antigravity. Pure Client-Side Safe Processing. Personal Information Compliant.</p>
+      <p>&copy; 2026 Antigravity. Premium Safe Payroll Dashboard. Personal Information Compliant.</p>
     </footer>
   </div>
 
-  <script src="app.js"></script>
+  <!-- Obsidian-style Beautiful Glassmorphism Modal -->
+  <div class="modal-backdrop" id="modal-container" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-glow"></div>
+      <div class="modal-header">
+        <svg class="modal-icon animate-pulse" id="modal-title-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <!-- Dynamically Injected Icon -->
+        </svg>
+        <h3 id="modal-title">서비스 안내</h3>
+        <button class="modal-close-btn" id="btn-modal-close" aria-label="닫기">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-message-highlight" id="modal-highlight-text">현재 새로운 기능을 준비 중입니다.</p>
+        <p class="modal-message-detail" id="modal-detail-text">
+          선택하신 서비스는 더욱 안전하고 고도화된 기능 제공을 위해 기획 및 검증 단계에 있습니다. 
+          차후 정기 업데이트를 통해 제공될 예정이오니 조금만 기다려 주시기 바랍니다!
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" id="btn-modal-confirm">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================================
+       Obsidian Dashboard - Interactive Micro-interactions & Modal Controller
+       ========================================================================== */
+    const modalContainer = document.getElementById('modal-container');
+    const modalTitle = document.getElementById('modal-title');
+    const modalTitleIcon = document.getElementById('modal-title-icon');
+    const modalHighlightText = document.getElementById('modal-highlight-text');
+    const modalDetailText = document.getElementById('modal-detail-text');
+    
+    const btnModalClose = document.getElementById('btn-modal-close');
+    const btnModalConfirm = document.getElementById('btn-modal-confirm');
+    
+    const linkEncryption = document.getElementById('link-encryption');
+    const linkMailing = document.getElementById('link-mailing');
+
+    // SVG Icon Assets
+    const icons = {
+      lock: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />`,
+      mail: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 19v-8.93a2 2 0 01.89-1.664l8-4.666a2 2 0 012.22 0l8 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-2.25-1.5a2 2 0 00-2.22 0l-2.25 1.5" />`
+    };
+
+    function showModal(serviceType) {
+      modalContainer.style.display = 'flex';
+      // Trigger subtle reflow for transition
+      setTimeout(() => modalContainer.classList.add('active'), 10);
+
+      if (serviceType === 'encryption') {
+        modalTitle.textContent = 'PDF 파일 암호화';
+        modalTitleIcon.innerHTML = icons.lock;
+        modalHighlightText.textContent = '🔒 PDF 암호화 보안 도구 준비 중';
+        modalDetailText.textContent = '직원들의 소중한 개인정보 유출을 방지하기 위해, 분할된 PDF에 주민번호 뒷자리나 개별 패스워드를 기반으로 강력한 AES-256 규격 암호화를 적용하는 기능을 기획 중입니다. 안전한 보안 감사 가이드를 준수하여 다음 버전에서 찾아뵙겠습니다!';
+      } else if (serviceType === 'mailing') {
+        modalTitle.textContent = '급여명세서 메일 발송';
+        modalTitleIcon.innerHTML = icons.mail;
+        modalHighlightText.textContent = '✉️ 대량 메일 자동 전송 시스템 준비 중';
+        modalDetailText.textContent = '분할 및 암호화 처리가 끝난 급여명세서를 직원의 이메일 주소 정보와 1:1 매칭하여 원클릭으로 일괄 자동 발송하는 초고속 전송 모듈을 기획하고 있습니다. SMTP 보안 인증 규정을 준수하여 곧 업데이트될 예정입니다!';
+      }
+    }
+
+    function closeModal() {
+      modalContainer.classList.remove('active');
+      setTimeout(() => {
+        modalContainer.style.display = 'none';
+      }, 300);
+    }
+
+    linkEncryption.addEventListener('click', () => showModal('encryption'));
+    linkMailing.addEventListener('click', () => showModal('mailing'));
+    
+    btnModalClose.addEventListener('click', closeModal);
+    btnModalConfirm.addEventListener('click', closeModal);
+
+    // Close on clicking backdrop
+    modalContainer.addEventListener('click', (e) => {
+      if (e.target === modalContainer) {
+        closeModal();
+      }
+    });
+
+    // 3D Tilt Card Interaction
+    const cards = document.querySelectorAll('.dashboard-card');
+    cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        const rotateX = ((centerY - y) / centerY) * 6; // Max 6deg
+        const rotateY = ((x - centerX) / centerX) * 6;
+        
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+        
+        // Dynamic glow movement
+        const glow = card.querySelector('.card-glow');
+        if (glow) {
+          glow.style.background = `radial-gradient(circle 120px at ${x}px ${y}px, rgba(27, 230, 196, 0.15), transparent)`;
+        }
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+        const glow = card.querySelector('.card-glow');
+        if (glow) {
+          glow.style.background = 'transparent';
+        }
+      });
+    });
+  </script>
 </body>
 </html>
