@@ -562,52 +562,52 @@ input[type="text"]:focus {
 
 /* Custom Checkbox Design */
 .checkbox-container {
-  display: block;
-  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   cursor: pointer;
   user-select: none;
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 
-.checkbox-container input {
-  position: absolute;
-  opacity: 0;
-  cursor: pointer;
-  height: 0;
-  width: 0;
-}
-
-.checkbox-container::before {
-  content: '';
-  display: inline-block;
+.checkbox-container input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
   width: 18px;
   height: 18px;
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 4px;
-  background: transparent;
+  background: rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  position: relative;
   transition: var(--transition-smooth);
+  padding: 0;
+  margin: 0;
+  display: inline-block;
+  flex-shrink: 0;
 }
 
-.checkbox-container input:checked::before {
+.checkbox-container input[type="checkbox"]:checked {
   background: var(--blue-color);
   border-color: var(--blue-color);
   box-shadow: 0 0 8px var(--blue-glow);
 }
 
-.checkbox-container::after {
+.checkbox-container input[type="checkbox"]:checked::after {
   content: '';
   position: absolute;
-  left: 6px;
-  top: 3px;
-  width: 4px;
-  height: 8px;
-  border: solid transparent;
+  left: 5px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: solid #0f131a;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
-  transition: var(--transition-smooth);
 }
 
-.checkbox-container input:checked::after {
-  border-color: #0b0f17;
+.checkbox-container:hover input[type="checkbox"] {
+  border-color: var(--blue-color);
 }
 
 /* Table Name Cell with PDF Icon */
