@@ -12,8 +12,7 @@ const dirPickerZone = document.getElementById('dir-picker-zone');
 const dirInfoArea = document.getElementById('dir-info-area');
 const selectedDirName = document.getElementById('selected-dir-name');
 const selectedDirPath = document.getElementById('selected-dir-path');
-const selectedPdfCount = document.getElementById('selected-pdf-count');
-
+const mailSenderInput = document.getElementById('mail-sender-input');
 const mailSubjectInput = document.getElementById('mail-subject-input');
 const editorBody = document.getElementById('editor-body');
 
@@ -328,8 +327,21 @@ async function startEmailDispatch() {
     return;
   }
 
+  const senderEmail = mailSenderInput.value.trim();
   const subject = mailSubjectInput.value.trim();
   const bodyHtml = editorBody.innerHTML.trim();
+
+  if (!senderEmail) {
+    alert('보내는 사람 이메일 주소를 입력해 주세요.');
+    return;
+  }
+
+  // Sender email address validation
+  const senderEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!senderEmailRegex.test(senderEmail)) {
+    alert('보내는 사람 이메일 주소 형식이 올바르지 않습니다.');
+    return;
+  }
 
   if (!subject) {
     alert('이메일 제목을 입력해 주세요.');
@@ -345,6 +357,9 @@ async function startEmailDispatch() {
   btnStartMailing.disabled = true;
   btnSelectDir.disabled = true;
   chkSelectAll.disabled = true;
+  mailSenderInput.disabled = true;
+  mailSubjectInput.disabled = true;
+  editorBody.contentEditable = "false";
   
   const allRowCheckboxes = document.querySelectorAll('.explorer-row-checkbox');
   allRowCheckboxes.forEach(c => c.disabled = true);
@@ -376,9 +391,9 @@ async function startEmailDispatch() {
       const statusLabel = document.getElementById(`${fileId}-status`);
       const emailAddress = emailInput ? emailInput.value.trim() : '';
 
-      // Update global progress bar
+      // Update global progress bar with sender info
       const percent = Math.round((i / total) * 100);
-      progressLabel.textContent = `총 ${total}명 중 ${i + 1}명째 발송 중... (${fileObj.name})`;
+      progressLabel.textContent = `[${senderEmail}] ➡️ 총 ${total}명 중 ${i + 1}명째 발송 중... (${fileObj.name})`;
       progressBar.style.width = `${percent}%`;
       progressPercentLabel.textContent = `${percent}%`;
 
@@ -440,10 +455,10 @@ async function startEmailDispatch() {
     progressPercentLabel.textContent = '100%';
 
     if (failCount === 0) {
-      progressLabel.textContent = `🎉 선택된 ${successCount}명의 임직원에게 첨부파일 급여명세서 메일 발송이 안전하게 완료되었습니다!`;
+      progressLabel.textContent = `🎉 [${senderEmail}]에서 선택된 ${successCount}명의 임직원에게 급여명세서 메일 발송이 안전하게 완료되었습니다!`;
       progressBar.style.background = 'var(--success-color)';
     } else {
-      progressLabel.textContent = `⚠️ 발송 완료 (일부 실패): 성공 ${successCount}건, 실패 ${failCount}건 (실패 파일: ${failedFiles.join(', ')}).`;
+      progressLabel.textContent = `⚠️ [${senderEmail}]에서 발송 완료 (일부 실패): 성공 ${successCount}건, 실패 ${failCount}건.`;
       progressBar.style.background = 'var(--warning-color)';
     }
 
@@ -456,6 +471,9 @@ async function startEmailDispatch() {
     btnStartMailing.disabled = false;
     btnSelectDir.disabled = false;
     chkSelectAll.disabled = false;
+    mailSenderInput.disabled = false;
+    mailSubjectInput.disabled = false;
+    editorBody.contentEditable = "true";
     
     allRowCheckboxes.forEach(c => c.disabled = false);
     allEmailInputs.forEach(i => i.disabled = false);
