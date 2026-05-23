@@ -24,6 +24,12 @@ const progressBar = document.getElementById('progress-bar');
 const progressLabel = document.getElementById('progress-label');
 const progressPercentLabel = document.getElementById('progress-percent-label');
 
+const chkRealSend = document.getElementById('chk-real-send');
+const emailjsInputsArea = document.getElementById('emailjs-inputs-area');
+const emailjsServiceId = document.getElementById('emailjs-service-id');
+const emailjsTemplateId = document.getElementById('emailjs-template-id');
+const emailjsPublicKey = document.getElementById('emailjs-public-key');
+
 const pdfList = document.getElementById('pdf-list');
 const pdfCountLabel = document.getElementById('pdf-count');
 const chkSelectAll = document.getElementById('chk-select-all');
@@ -36,6 +42,11 @@ const selectToolFont = document.getElementById('select-tool-font');
 const selectToolSize = document.getElementById('select-tool-size');
 const inputToolColor = document.getElementById('input-tool-color');
 const colorPreview = document.getElementById('color-preview');
+
+// Show/Hide EmailJS input panel based on checkbox state
+chkRealSend.addEventListener('change', () => {
+  emailjsInputsArea.style.display = chkRealSend.checked ? 'flex' : 'none';
+});
 
 /* ==========================================================================
    WYSIWYG Editor Actions
@@ -354,6 +365,23 @@ async function startEmailDispatch() {
     return;
   }
 
+  // Retrieve and validate EmailJS options if real send is enabled
+  const isRealSend = chkRealSend.checked;
+  const serviceId = emailjsServiceId.value.trim();
+  const templateId = emailjsTemplateId.value.trim();
+  const publicKey = emailjsPublicKey.value.trim();
+
+  if (isRealSend) {
+    if (!serviceId || !templateId || !publicKey) {
+      alert('실제 메일 발송을 활성화하려면 EmailJS 설정(Service ID, Template ID, Public Key)을 모두 정확히 입력해 주세요.');
+      return;
+    }
+    // Initialize EmailJS
+    emailjs.init({
+      publicKey: publicKey
+    });
+  }
+
   // 1. Disable all controls to preserve state and avoid conflicts
   btnStartMailing.disabled = true;
   btnSelectDir.disabled = true;
@@ -361,6 +389,10 @@ async function startEmailDispatch() {
   mailSenderInput.disabled = true;
   mailSubjectInput.disabled = true;
   editorBody.contentEditable = "false";
+  chkRealSend.disabled = true;
+  emailjsServiceId.disabled = true;
+  emailjsTemplateId.disabled = true;
+  emailjsPublicKey.disabled = true;
   
   const allRowCheckboxes = document.querySelectorAll('.explorer-row-checkbox');
   allRowCheckboxes.forEach(c => c.disabled = true);
@@ -414,30 +446,54 @@ async function startEmailDispatch() {
           throw new Error('메일 형식 오류');
         }
 
-        // Simulating fine-grained SMTP dispatch phases to WOW the user
-        await new Promise(resolve => setTimeout(resolve, 250));
-        statusLabel.textContent = '보안 인증 핸드셰이크...';
-        
-        await new Promise(resolve => setTimeout(resolve, 300));
-        statusLabel.textContent = 'PDF 페이로드 빌드...';
-        
-        // Read file handle byte check
-        const file = await fileObj.handle.getFile();
-        
-        await new Promise(resolve => setTimeout(resolve, 350));
-        statusLabel.textContent = 'SMTP 메일 릴레이 중...';
+        if (isRealSend) {
+          statusLabel.textContent = '첨부용 PDF 로드...';
+          const file = await fileObj.handle.getFile();
+          
+          statusLabel.textContent = 'PDF 암호화 직렬화...';
+          const base64Content = await fileToBase64(file);
+          
+          statusLabel.textContent = 'EmailJS 실제 발송 중...';
+          const templateParams = {
+            to_email: emailAddress,
+            from_name: senderEmail,
+            subject: subject,
+            message_html: bodyHtml,
+            salary_pdf: base64Content,
+            filename: fileObj.name
+          };
 
-        await new Promise(resolve => setTimeout(resolve, 350));
-        
-        // Simulating a rare I/O mock fail for extra validation realism
-        if (emailAddress.includes('error') || file.size === 0) {
-          throw new Error('서버 전송 시간 만료');
+          await emailjs.send(serviceId, templateId, templateParams);
+          
+          statusLabel.className = 'status-badge status-success';
+          statusLabel.textContent = '🎉 실제 발송 성공';
+          successCount++;
+        } else {
+          // Simulating fine-grained SMTP dispatch phases to WOW the user (Virtual Sandbox)
+          await new Promise(resolve => setTimeout(resolve, 250));
+          statusLabel.textContent = '보안 인증 핸드셰이크...';
+          
+          await new Promise(resolve => setTimeout(resolve, 300));
+          statusLabel.textContent = 'PDF 페이로드 빌드...';
+          
+          // Read file handle byte check
+          const file = await fileObj.handle.getFile();
+          
+          await new Promise(resolve => setTimeout(resolve, 350));
+          statusLabel.textContent = 'SMTP 메일 릴레이 중...';
+
+          await new Promise(resolve => setTimeout(resolve, 350));
+          
+          // Simulating a rare I/O mock fail for extra realism
+          if (emailAddress.includes('error') || file.size === 0) {
+            throw new Error('서버 전송 시간 만료');
+          }
+
+          // Success
+          statusLabel.className = 'status-badge status-success';
+          statusLabel.textContent = '🎉 발송 성공';
+          successCount++;
         }
-
-        // Success
-        statusLabel.className = 'status-badge status-success';
-        statusLabel.textContent = '🎉 발송 성공';
-        successCount++;
 
       } catch (fileErr) {
         console.error(`${fileObj.name} 메일 발송 오류:`, fileErr);
@@ -475,6 +531,10 @@ async function startEmailDispatch() {
     mailSenderInput.disabled = false;
     mailSubjectInput.disabled = false;
     editorBody.contentEditable = "true";
+    chkRealSend.disabled = false;
+    emailjsServiceId.disabled = false;
+    emailjsTemplateId.disabled = false;
+    emailjsPublicKey.disabled = false;
     
     allRowCheckboxes.forEach(c => c.disabled = false);
     allEmailInputs.forEach(i => i.disabled = false);
@@ -492,4 +552,17 @@ function formatBytes(bytes) {
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+// Convert HTML5 File Object to Base64 String Helper
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const base64 = reader.result.split(',')[1];
+      resolve(base64);
+    };
+    reader.onerror = error => reject(error);
+  });
 }
