@@ -12,6 +12,7 @@ const dirPickerZone = document.getElementById('dir-picker-zone');
 const dirInfoArea = document.getElementById('dir-info-area');
 const selectedDirName = document.getElementById('selected-dir-name');
 const selectedDirPath = document.getElementById('selected-dir-path');
+const selectedPdfCount = document.getElementById('selected-pdf-count');
 const mailSenderInput = document.getElementById('mail-sender-input');
 const mailSubjectInput = document.getElementById('mail-subject-input');
 const editorBody = document.getElementById('editor-body');
